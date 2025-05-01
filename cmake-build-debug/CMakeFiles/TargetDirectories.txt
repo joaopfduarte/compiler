@@ -1,0 +1,3 @@
+C:/Users/joaop/CLionProjects/compilerProject/cmake-build-debug/CMakeFiles/compilerProject.dir
+C:/Users/joaop/CLionProjects/compilerProject/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/joaop/CLionProjects/compilerProject/cmake-build-debug/CMakeFiles/rebuild_cache.dir
