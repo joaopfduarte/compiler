@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "compilerProject.exe"
+			"path" : "compiler.exe"
 		},
 		{
-			"path" : "compilerProject.pdb"
+			"path" : "compiler.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -27,7 +27,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 6,
+				"line" : 7,
 				"parent" : 0
 			}
 		]
@@ -52,11 +52,12 @@
 			},
 			"sourceIndexes" : 
 			[
-				0
+				0,
+				1
 			]
 		}
 	],
-	"id" : "compilerProject::@6890427a1f51a3e7e1df",
+	"id" : "compiler::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -76,8 +77,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "compilerProject",
-	"nameOnDisk" : "compilerProject.exe",
+	"name" : "compiler",
+	"nameOnDisk" : "compiler.exe",
 	"paths" : 
 	{
 		"build" : ".",
@@ -89,7 +90,8 @@
 			"name" : "Source Files",
 			"sourceIndexes" : 
 			[
-				0
+				0,
+				1
 			]
 		}
 	],
@@ -99,6 +101,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "main.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "LexicalAnalyzer.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

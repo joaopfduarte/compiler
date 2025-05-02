@@ -9,7 +9,7 @@
 					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
 					"minimumCMakeVersion" : 
 					{
-						"string" : "3.31"
+						"string" : "3.10"
 					},
 					"projectIndex" : 0,
 					"source" : ".",
@@ -38,9 +38,9 @@
 			[
 				{
 					"directoryIndex" : 0,
-					"id" : "compilerProject::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-compilerProject-Debug-1d942b34e73029f1d2d5.json",
-					"name" : "compilerProject",
+					"id" : "compiler::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-compiler-Debug-fc0fc60e81a966e298f5.json",
+					"name" : "compiler",
 					"projectIndex" : 0
 				}
 			]
