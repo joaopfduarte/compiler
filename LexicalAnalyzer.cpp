@@ -129,6 +129,19 @@ void LexicalAnalyzer::analyze(const std::string &text) {
                 currentWord.clear();
             }
 
+            if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
+                std::string tokenType;
+
+                if (c == ',' || c == '.' || c == '!' || c == '?' || c == ';' || c == ':') {
+                    tokenType = "PUNCTUATION";
+                } else if (c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}') {
+                    tokenType = "DELIMITER";
+                }
+
+                tokenQueue.push(Token(std::string(1, c), tokenType, line, column));
+            }
+
+
             if (c == '\n') {
                 line++;
                 column = 1;
