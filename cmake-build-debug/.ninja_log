@@ -5,3 +5,5 @@
 17	636	7678555060509150	CMakeFiles/compiler.dir/main.cpp.obj	153338357c806b36
 22	765	7678555060549800	CMakeFiles/compiler.dir/LexicalAnalyzer.cpp.obj	1e5b9b593240bde7
 765	1245	7678555067987465	compiler.exe	7249d4cddb0e73d0
+24	745	7678560098161875	CMakeFiles/compiler.dir/LexicalAnalyzer.cpp.obj	1e5b9b593240bde7
+746	898	7678560105377555	compiler.exe	7249d4cddb0e73d0

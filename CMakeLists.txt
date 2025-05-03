@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 3.10)
 project(compilerProject)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(compilerProject main.cpp)
+add_executable(compiler 
+    main.cpp
+    LexicalAnalyzer.cpp
+)
