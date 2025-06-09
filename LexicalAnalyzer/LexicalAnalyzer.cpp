@@ -7,7 +7,7 @@
 #include <set>
 #include <map>
 #include <algorithm>
-#include "Token.h"
+#include "../Token.h"
 
 class LexicalAnalyzer {
 private:
@@ -42,7 +42,7 @@ private:
 };
 
 #endif
-#include "LexicalAnalyzer.h"
+#include "../LexicalAnalyzer/LexicalAnalyzer.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>

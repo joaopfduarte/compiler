@@ -1,5 +1,5 @@
 #include <iostream>
-#include "LexicalAnalyzer.h"
+#include "LexicalAnalyzer/LexicalAnalyzer.h"
 
 void printAnalysisResults(const LexicalAnalyzer& analyzer) {
     std::cout << "\nTabela de Simbolos:" << std::endl;
