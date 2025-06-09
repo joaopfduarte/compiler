@@ -1,8 +1,0 @@
-# ninja log v6
-3	391	7665955854397521	CMakeFiles/compilerProject.dir/main.cpp.obj	c839aa24fa5a7b8e
-779	977	7711128384553542	compiler.exe	af668eb6314b101c
-392	583	7665955858291148	compilerProject.exe	5b242df2f34ec8c3
-22	416	7711360920518547	build.ninja	b0a2b0339c70ec02
-19	584	7711123560307709	CMakeFiles/compiler.dir/main.cpp.obj	153338357c806b36
-20	899	7711119237939814	CMakeFiles/compiler.dir/LexicalAnalyzer.cpp.obj	1e5b9b593240bde7
-4	778	7711128376801217	CMakeFiles/compiler.dir/LexicalAnalyzer/LexicalAnalyzer.cpp.obj	710e4bf4ea4f55fb

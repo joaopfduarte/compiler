@@ -6,15 +6,15 @@
 #include<iostream>
 #include<algorithm>
 
-bool SyntaxAnalyzer::isValidFormat(const std::string& format) {
+bool SyntaxAnalyzer::isValidFormat(const std::string &format) {
     return std::find(validFormats.begin(), validFormats.end(), format) != validFormats.end();
 }
 
-bool SyntaxAnalyzer::isValidDate(const std::string& date) {
+bool SyntaxAnalyzer::isValidDate(const std::string &date) {
     return date.find("/") != std::string::npos;
 }
 
-QueryType SyntaxAnalyzer::identifyQueryType(const std::queue<Token>& tokens) {
+QueryType SyntaxAnalyzer::identifyQueryType(const std::queue<Token> &tokens) {
     auto tokensCopy = tokens;
     if (tokensCopy.empty()) return QueryType::UNKNOWN;
 
@@ -87,7 +87,7 @@ ParsedQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
 }
 
 void SyntaxAnalyzer::analyzeFormatQuery(std::queue<Token> tokens) {
-    for (int i = 0;i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         if (tokens.empty()) {
             currentQuery.isComplete = false;
             currentQuery.missingElement = "formato";
@@ -120,9 +120,98 @@ std::string SyntaxAnalyzer::getMissingElement() const {
 bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
     if (queryHistory.empty())
         std::cout << "Não há nenhuma consulta anterior.\n";
-        return false;
+    return false;
 
     ParsedQuery lastQuery = queryHistory.back();
-
+    // Falta ainda implementar lógica para última consulta
     return true;
+}
+
+void SyntaxAnalyzer::analyzeSizeQuery(std::queue<Token> tokens) {
+    //Qual o tamanho do documento <titulo>?
+
+    for (int i = 0; i < 5; i++) {
+        if (tokens.empty()) {
+            currentQuery.isComplete = false;
+            currentQuery.missingElement = "título";
+            return;
+        }
+        tokens.pop();
+    }
+
+    if (tokens.empty()) {
+        currentQuery.isComplete = false;
+        currentQuery.missingElement = "título";
+        return;
+    }
+
+    //Captura o título do doc
+    std::string title;
+    while (!tokens.empty() && tokens.front().lexeme != "?") {
+        title += tokens.front().lexeme + " ";
+        tokens.pop();
+    }
+
+    if (!title.empty() && title[title.length() - 1] == ' ') {
+        title = title.substr(0, title.length() - 1);
+    }
+
+    if (title.empty()) {
+        currentQuery.isComplete = false;
+        currentQuery.missingElement = "título";
+        return;
+    }
+
+    //Armazena o título na consulta
+    currentQuery.parameters["título"] = title;
+    currentQuery.isComplete = true;
+}
+
+void SyntaxAnalyzer::analyzeTitleQuery(std::queue<Token> tokens) {
+    for (int i = 0; i < 5; i++) {
+        if (tokens.empty()) {
+            currentQuery.isComplete = false;
+            currentQuery.missingElement = "título";
+            return;
+        }
+        tokens.pop();
+    }
+
+    if (tokens.empty()) {
+        currentQuery.isComplete = false;
+        currentQuery.missingElement = "título";
+        return;
+    }
+
+    std::string title;
+    while (!tokens.empty() && tokens.front().lexeme != "?") {
+        title += tokens.front().lexeme + " ";
+        tokens.pop();
+    }
+
+    if (!title.empty() && title[title.length() - 1] == ' ') {
+        title = title.substr(0, title.length() - 1);
+    }
+
+    if (title.empty()) {
+        currentQuery.isComplete = false;
+        currentQuery.missingElement = "título";
+        return;
+    }
+
+    if (title.front() == '"' && title.back() == '"') {
+        title = title.substr(1, title.length() - 2);
+    }
+
+    currentQuery.parameters["título"] = title;
+    currentQuery.isComplete = true;
+}
+
+void SyntaxAnalyzer::analyzeDateQuery(std::queue<Token> tokens) {
+}
+
+void SyntaxAnalyzer::analyzeKeywordQuery(std::queue<Token> tokens) {
+}
+
+void SyntaxAnalyzer::analyzeResponse(std::queue<Token> tokens) {
 }
