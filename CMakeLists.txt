@@ -7,6 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(compiler 
     main.cpp
         LexicalAnalyzer/LexicalAnalyzer.cpp
-        "Syntax Analyzer/SyntaxAnalyzer.cpp"
-        "Syntax Analyzer/SyntaxAnalyzer.h"
+        "SyntaxAnalyzer/SyntaxAnalyzer.cpp"
+        "SyntaxAnalyzer/SyntaxAnalyzer.h"
 )

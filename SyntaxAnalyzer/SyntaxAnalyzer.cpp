@@ -50,7 +50,10 @@ QueryType SyntaxAnalyzer::identifyQueryType(const std::queue<Token>& tokens) {
     return QueryType::UNKNOWN;
 }
 
-ParseQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
+ParsedQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
+    QueryType type = identifyQueryType(tokens);
+    currentQuery = ParsedQuery{type, {}, false, ""};
+
     switch (type) {
         case QueryType::FORMAT_QUERY:
             analyzeFormatQuery(tokens);
@@ -75,6 +78,51 @@ ParseQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
             currentQuery.isComplete = false;
             break;
     }
-    QueryType type = identifyQueryType(tokens);
-    currentQuery = ParseQuery{type, {}, false, ""};
+
+    if (!currentQuery.isComplete) {
+        queryHistory.push_back(currentQuery);
+    }
+
+    return currentQuery;
+}
+
+void SyntaxAnalyzer::analyzeFormatQuery(std::queue<Token> tokens) {
+    for (int i = 0;i < 4; i++) {
+        if (tokens.empty()) {
+            currentQuery.isComplete = false;
+            currentQuery.missingElement = "formato";
+            return;
+        }
+        tokens.pop();
+    }
+
+    if (tokens.empty()) {
+        currentQuery.isComplete = false;
+        currentQuery.missingElement = "formato";
+        return;
+    }
+
+    std::string format = tokens.front().lexeme;
+    if (isValidFormat(format)) {
+        currentQuery.parameters["formato"] = format;
+        currentQuery.isComplete = true;
+    } else {
+        std::cout << "Formato inválido: " << format << std::endl;
+        currentQuery.isComplete = false;
+        currentQuery.missingElement = "formato";
+    }
+}
+
+std::string SyntaxAnalyzer::getMissingElement() const {
+    return currentQuery.missingElement;
+}
+
+bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
+    if (queryHistory.empty())
+        std::cout << "Não há nenhuma consulta anterior.\n";
+        return false;
+
+    ParsedQuery lastQuery = queryHistory.back();
+
+    return true;
 }

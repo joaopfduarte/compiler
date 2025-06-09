@@ -61,11 +61,11 @@ build CMakeFiles/compiler.dir/LexicalAnalyzer/LexicalAnalyzer.cpp.obj: CXX_COMPI
   OBJECT_DIR = CMakeFiles\compiler.dir
   OBJECT_FILE_DIR = CMakeFiles\compiler.dir\LexicalAnalyzer
 
-build CMakeFiles/compiler.dir/Syntax_Analyzer/SyntaxAnalyzer.cpp.obj: CXX_COMPILER__compiler_unscanned_Debug C$:/Users/joaop/CLionProjects/compilerProject/Syntax$ Analyzer/SyntaxAnalyzer.cpp || cmake_object_order_depends_target_compiler
-  DEP_FILE = CMakeFiles\compiler.dir\Syntax_Analyzer\SyntaxAnalyzer.cpp.obj.d
+build CMakeFiles/compiler.dir/SyntaxAnalyzer/SyntaxAnalyzer.cpp.obj: CXX_COMPILER__compiler_unscanned_Debug C$:/Users/joaop/CLionProjects/compilerProject/SyntaxAnalyzer/SyntaxAnalyzer.cpp || cmake_object_order_depends_target_compiler
+  DEP_FILE = CMakeFiles\compiler.dir\SyntaxAnalyzer\SyntaxAnalyzer.cpp.obj.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\compiler.dir
-  OBJECT_FILE_DIR = CMakeFiles\compiler.dir\Syntax_Analyzer
+  OBJECT_FILE_DIR = CMakeFiles\compiler.dir\SyntaxAnalyzer
 
 
 # =============================================================================
@@ -75,7 +75,7 @@ build CMakeFiles/compiler.dir/Syntax_Analyzer/SyntaxAnalyzer.cpp.obj: CXX_COMPIL
 #############################################
 # Link the executable compiler.exe
 
-build compiler.exe: CXX_EXECUTABLE_LINKER__compiler_Debug CMakeFiles/compiler.dir/main.cpp.obj CMakeFiles/compiler.dir/LexicalAnalyzer/LexicalAnalyzer.cpp.obj CMakeFiles/compiler.dir/Syntax_Analyzer/SyntaxAnalyzer.cpp.obj
+build compiler.exe: CXX_EXECUTABLE_LINKER__compiler_Debug CMakeFiles/compiler.dir/main.cpp.obj CMakeFiles/compiler.dir/LexicalAnalyzer/LexicalAnalyzer.cpp.obj CMakeFiles/compiler.dir/SyntaxAnalyzer/SyntaxAnalyzer.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\compiler.dir

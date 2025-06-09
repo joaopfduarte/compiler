@@ -1,5 +1,6 @@
 #include <iostream>
 #include "LexicalAnalyzer/LexicalAnalyzer.h"
+#include "SyntaxAnalyzer/SyntaxAnalyzer.h"
 
 void printAnalysisResults(const LexicalAnalyzer& analyzer) {
     std::cout << "\nTabela de Simbolos:" << std::endl;
@@ -19,27 +20,34 @@ void printAnalysisResults(const LexicalAnalyzer& analyzer) {
 }
 
 int main() {
-    LexicalAnalyzer analyzer;
+    LexicalAnalyzer lexAnalyzer;
+    SyntaxAnalyzer syntaxAnalyzer;
+    std::string input;
 
-    // Teste 1: Texto simples
-    std::cout << "Teste 1: Texto simples" << std::endl;
-    analyzer.analyze("Ola, como voce esta hoje?");
-    printAnalysisResults(analyzer);
+    while (true) {
+        std::cout << "\nDigite sua pergunta (ou 'sair' para encerrar): ";
+        std::getline(std::cin, input);
 
-    // Teste 2: Texto com erros de grafia
-    std::cout << "\nTeste 2: Texto com erros de grafia" << std::endl;
-    analyzer.analyze("Excecao Esceção excessão");
-    printAnalysisResults(analyzer);
+        if (input == "sair") break;
 
-    // Teste 3: Texto com caracteres inválidos
-    std::cout << "\nTeste 3: Texto com caracteres invalidos" << std::endl;
-    analyzer.analyze("Hello world! §¬£");
-    printAnalysisResults(analyzer);
+        // Análise léxica
+        lexAnalyzer.analyze(input);
+        auto tokens = lexAnalyzer.getTokenQueue();
 
-    // Teste 4: Texto com maior caso de teste
-    std::cout << "\nTeste 4: Texto com caracteres variados" << std::endl;
-    analyzer.analyze("std::cout << ""olá, como. o dia está ?hoje?!44aa!, tudo asasas bem44 444aa a4a aa44 aa44ff90 aa44!hjh");
-    printAnalysisResults(analyzer);
+        // Análise sintática
+        ParsedQuery result = syntaxAnalyzer.analyze(tokens);
+
+        if (!result.isComplete) {
+            std::string missing = syntaxAnalyzer.getMissingElement();
+            if (!missing.empty()) {
+                std::cout << "Qual " << missing << " você deseja saber?" << std::endl;
+                std::getline(std::cin, input);
+                lexAnalyzer.analyze(input);
+                tokens = lexAnalyzer.getTokenQueue();
+                syntaxAnalyzer.handleResponse(tokens);
+            }
+        }
+    }
 
     return 0;
 }
