@@ -40,13 +40,25 @@ int main() {
         if (!result.isComplete) {
             std::string missing = syntaxAnalyzer.getMissingElement();
             if (!missing.empty()) {
+                std::cout << "Tipo da consulta: " << static_cast<int>(result.type) << std::endl;
+                std::cout << "Elemento faltante: " << missing << std::endl;
                 std::cout << "Qual " << missing << " você deseja saber?" << std::endl;
                 std::getline(std::cin, input);
                 lexAnalyzer.analyze(input);
                 tokens = lexAnalyzer.getTokenQueue();
-                syntaxAnalyzer.handleResponse(tokens);
+                if (syntaxAnalyzer.handleResponse(tokens)) {
+                    std::cout << "Consulta completada com sucesso!\n";
+                } else {
+                    std::cout << "Não foi possível completar a consulta.\n";
+                }
+            }
+        } else {
+            std::cout << "Consulta reconhecida com sucesso!\n";
+            for (const auto& param : result.parameters) {
+                std::cout << param.first << ": " << param.second << std::endl;
             }
         }
+
     }
 
     return 0;
