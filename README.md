@@ -53,21 +53,23 @@ O sistema é interativo: o usuário digita perguntas, recebe feedback e pode com
 Token.h
 main.cpp
 ```
+```mermaid
 flowchart TD
-A[Início<br>Usuário digita pergunta] --> B[Análise Léxica<br>Tokenização, remoção de stopwords,<br>criação da tabela de símbolos]
-B --> C[Análise Sintática<br>Identificação do tipo de consulta<br>Extração de parâmetros]
-C --> D{Consulta completa?}
-D -- Sim --> E[Exibe parâmetros<br>Consulta reconhecida]
-D -- Não --> F[Solicita elemento faltante ao usuário]
-F --> G[Usuário fornece resposta]
-G --> H[Análise Léxica da resposta]
-H --> I[Análise Sintática da resposta]
-I --> J{Consulta completada?}
-J -- Sim --> E
-J -- Não --> F
-E --> K{Nova pergunta?}
-K -- Sim --> A
-K -- Não --> L[Fim]
+    A[Início<br>Usuário digita pergunta] --> B[Análise Léxica<br>Tokenização, remoção de stopwords,<br>criação da tabela de símbolos]
+    B --> C[Análise Sintática<br>Identificação do tipo de consulta<br>Extração de parâmetros]
+    C --> D{Consulta completa?}
+    D -- Sim --> E[Exibe parâmetros<br>Consulta reconhecida]
+    D -- Não --> F[Solicita elemento faltante ao usuário]
+    F --> G[Usuário fornece resposta]
+    G --> H[Análise Léxica da resposta]
+    H --> I[Análise Sintática da resposta]
+    I --> J{Consulta completada?}
+    J -- Sim --> E
+    J -- Não --> F
+    E --> K{Nova pergunta?}
+    K -- Sim --> A
+    K -- Não --> L[Fim]
+```
 
 ---
 
