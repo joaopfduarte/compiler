@@ -71,6 +71,10 @@ int main() {
             for (const auto &param: result.parameters) {
                 std::cout << param.first << ": " << param.second << std::endl;
             }
+
+            std::string response = syntaxAnalyzer.generateResponse(result);
+            std::cout << "Resposta: " << response << std::endl;
+
         }
     }
 

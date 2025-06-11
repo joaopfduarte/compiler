@@ -52,6 +52,7 @@ public:
 
     ParsedQuery analyze(std::queue<Token> tokens);
     std::string getMissingElement() const;
+    std::string generateResponse(const ParsedQuery &query);
     bool handleResponse(std::queue<Token> tokens);
 
 };

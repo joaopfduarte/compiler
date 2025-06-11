@@ -1,6 +1,7 @@
 #include "SyntaxAnalyzer.h"
 #include<iostream>
 #include<algorithm>
+#include<fstream>
 
 /*
  *Método para validação de logs
@@ -343,37 +344,65 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
 
         case QueryType::SIZE_QUERY: {
             /*
-                        Espera: "Quero tamanho maior que <numero>"
+                Espera uma resposta no formato: "Quero tamanho maior que <numero>"
             */
-            if (firstWord != "quero") {
+
+            if (tokens.empty()) {
+                std::cout << "A resposta está vazia.\n";
+                return false;
+            }
+
+            std::string currentWord = tokens.front().lexeme;
+            std::transform(currentWord.begin(), currentWord.end(), currentWord.begin(), ::tolower);
+
+            if (currentWord != "quero") {
                 std::cout << "Resposta deve começar com 'Quero tamanho maior que...'\n";
                 return false;
             }
 
-            /*
-             Remove "Quero tamanho maior que"
-*/
-            for (int i = 0; i < 4 && !tokens.empty(); i++) {
-                tokens.pop();
+            tokens.pop();
+
+            if (tokens.empty() || tokens.front().lexeme != "tamanho") {
+                std::cout << "Esperava 'tamanho' após 'Quero'.\n";
+                return false;
             }
+
+            tokens.pop();
+
+            if (tokens.empty() || tokens.front().lexeme != "maior") {
+                std::cout << "Esperava 'maior' após 'tamanho'.\n";
+                return false;
+            }
+
+            tokens.pop(); // Remove "maior"
+
+            if (tokens.empty() || tokens.front().lexeme != "que") {
+                std::cout << "Esperava 'que' após 'maior'.\n";
+                return false;
+            }
+
+            tokens.pop();
 
             if (tokens.empty()) {
-                std::cout << "Tamanho não especificado.\n";
+                std::cout << "Tamanho não especificado após 'que'.\n";
                 return false;
             }
 
-            std::string size = tokens.front().lexeme;
-            /*
-             Verifica se é um número
-*/
-            if (std::all_of(size.begin(), size.end(), ::isdigit)) {
-                lastQuery.parameters["tamanho"] = size;
-                lastQuery.isComplete = true;
-                return true;
-            } else {
-                std::cout << "Tamanho inválido: " << size << std::endl;
+            currentWord = tokens.front().lexeme;
+            tokens.pop();
+
+            if (!std::all_of(currentWord.begin(), currentWord.end(), ::isdigit)) {
+                std::cout << "Tamanho inválido: " << currentWord << "\n";
                 return false;
             }
+
+            lastQuery.parameters["tamanho"] = currentWord;
+            lastQuery.isComplete = true;
+
+            std::cout << "Consulta de tamanho processada com sucesso. Tamanho especificado: " << currentWord <<
+                    " bytes.\n";
+
+            return true;
         }
 
         case QueryType::DATE_QUERY: {
@@ -457,6 +486,15 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
             std::cout << "Tipo de consulta não suporta resposta.\n";
             return false;
     }
+}
+
+size_t getFileSize(const std::string &filePath) {
+    std::ifstream file(filePath, std::ios::binary | std::ios::ate);
+
+    if (!file) {
+        return static_cast<size_t>(-1);
+    }
+    return static_cast<size_t>(file.tellg());
 }
 
 void SyntaxAnalyzer::analyzeSizeQuery(std::queue<Token> tokens) {
@@ -627,4 +665,55 @@ void SyntaxAnalyzer::analyzeResponse(std::queue<Token> tokens) {
     */
 
     currentQuery.isComplete = false;
+}
+
+std::string SyntaxAnalyzer::generateResponse(const ParsedQuery &query) {
+    switch (query.type) {
+        case QueryType::FORMAT_QUERY: {
+            // Retorna o formato solicitado
+            auto it = query.parameters.find("formato");
+            if (it != query.parameters.end()) {
+                return "O formato é: " + it->second;
+            }
+            return "Não foi possível identificar o formato.";
+        }
+        case QueryType::SIZE_QUERY: {
+            // Retorna o tamanho do documento
+            auto it = query.parameters.find("tamanho");
+            if (it != query.parameters.end()) {
+                return "O tamanho do documento é: " + it->second + " bytes.";
+            }
+            return "Não foi possível identificar o tamanho.";
+        }
+        case QueryType::TITLE_QUERY: {
+            // Retorna o título identificado
+            auto it = query.parameters.find("título");
+            if (it != query.parameters.end()) {
+                return "O título correto é: \"" + it->second + "\".";
+            }
+            return "Não foi possível identificar o título.";
+        }
+        case QueryType::DATE_QUERY: {
+            // Retorna a data solicitada
+            auto it = query.parameters.find("data");
+            if (it != query.parameters.end()) {
+                return "Só documentos após " + it->second + ".";
+            }
+            return "Não foi possível identificar a data.";
+        }
+        case QueryType::KEYWORD_QUERY: {
+            // Retorna palavras-chave
+            auto it = query.parameters.find("palavra_chave");
+            if (it != query.parameters.end()) {
+                return "Os documentos relacionados à palavra-chave \"" + it->second + "\" serão listados.";
+            }
+            return "Não foi possível identificar a palavra-chave.";
+        }
+        case QueryType::RESPONSE: {
+            return "Resposta processada com sucesso.";
+        }
+        default: {
+            return "Consulta desconhecida.";
+        }
+    }
 }
