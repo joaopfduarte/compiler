@@ -107,17 +107,30 @@ QueryType SyntaxAnalyzer::identifyQueryType(const std::queue<Token> &tokens) {
 
                     if (!tokensCopy.empty()) {
                         Token nextToken = tokensCopy.front();
+
+                        if (nextToken.lexeme == ".") {
+                            std::cout << "[DEBUG] Ponto encontrado antes do formato. Ignorando...\n";
+                            tokensCopy.pop();
+                        }
+
                         std::cout << "[DEBUG] Próximo token: " << nextToken.lexeme << std::endl;
 
+                        if (!tokensCopy.empty()) {
+                            nextToken = tokensCopy.front();
+                            std::cout << "[DEBUG] Próximo token: " << nextToken.lexeme << std::endl;
 
-                        if (isValidFormat(nextToken.lexeme)) {
-                            tokensCopy.pop();
-                            std::cout << "[DEBUG] Query identificada como FORMAT_QUERY com formato: "
-                                    << nextToken.lexeme << std::endl;
-                            currentQuery.parameters["formato"] = nextToken.lexeme;
-                            return QueryType::FORMAT_QUERY;
+                            if (isValidFormat(nextToken.lexeme)) {
+                                tokensCopy.pop();
+                                std::cout << "[DEBUG] Query identificada como FORMAT_QUERY com formato: "
+                                        << nextToken.lexeme << std::endl;
+                                currentQuery.parameters["formato"] = nextToken.lexeme;
+                                return QueryType::FORMAT_QUERY;
+                            } else {
+                                std::cout << "[DEBUG] Formato inválido: " << nextToken.lexeme << std::endl;
+                                return QueryType::UNKNOWN;
+                            }
                         } else {
-                            std::cout << "[DEBUG] Formato inválido: " << nextToken.lexeme << std::endl;
+                            std::cout << "[DEBUG] Fim da consulta encontrado sem especificar o formato.\n";
                             return QueryType::UNKNOWN;
                         }
                     } else {

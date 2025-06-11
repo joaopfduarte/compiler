@@ -45,11 +45,11 @@ int main() {
         std::cout << "\n[DEBUG] Tokens gerados pela análise léxica:" << std::endl;
         auto tokenCopy = tokens;
         while (!tokenCopy.empty()) {
-            const auto& token = tokenCopy.front();
+            const auto &token = tokenCopy.front();
             std::cout << "Lexema: '" << token.lexeme
-                      << "', Tipo: '" << token.type
-                      << "', Linha: " << token.line
-                      << ", Coluna: " << token.column << std::endl;
+                    << "', Tipo: '" << token.type
+                    << "', Linha: " << token.line
+                    << ", Coluna: " << token.column << std::endl;
             tokenCopy.pop();
         }
 
@@ -82,7 +82,6 @@ int main() {
 
             std::string response = syntaxAnalyzer.generateResponse(result);
             std::cout << "Resposta: " << response << std::endl;
-
         }
     }
 
