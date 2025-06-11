@@ -2,6 +2,7 @@
 #include<iostream>
 #include<algorithm>
 #include<fstream>
+#include<filesystem>
 
 /*
  *Método para validação de logs
@@ -46,7 +47,7 @@ bool SyntaxAnalyzer::isValidDate(const std::string &date) {
 }
 
 QueryType SyntaxAnalyzer::identifyQueryType(const std::queue<Token> &tokens) {
-    auto tokensCopy = tokens; // Cria cópia da fila de tokens
+    auto tokensCopy = tokens;
     if (tokensCopy.empty()) {
         std::cout << "[DEBUG] Fila de tokens vazia em identifyQueryType." << std::endl;
         return QueryType::UNKNOWN;
@@ -63,7 +64,7 @@ QueryType SyntaxAnalyzer::identifyQueryType(const std::queue<Token> &tokens) {
     Método para identificar o tipo de consulta no caso de tokens iniciados com "Qual".
     */
     if (firstWord == "qual") {
-        tokensCopy.pop(); // Remove o primeiro token ("Qual")
+        tokensCopy.pop();
 
         if (tokensCopy.empty()) {
             std::cout << "[DEBUG] Fila de tokens ficou vazia após 'Qual'." << std::endl;
@@ -81,7 +82,7 @@ QueryType SyntaxAnalyzer::identifyQueryType(const std::queue<Token> &tokens) {
             /*
             Caso: "Qual documento ..."
             */
-            tokensCopy.pop(); // Remove o token "documento"
+            tokensCopy.pop();
 
             if (tokensCopy.empty()) {
                 std::cout << "[DEBUG] Fila de tokens esvaziada ao analisar 'documento'." << std::endl;
@@ -374,7 +375,7 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
                 return false;
             }
 
-            tokens.pop(); // Remove "maior"
+            tokens.pop();
 
             if (tokens.empty() || tokens.front().lexeme != "que") {
                 std::cout << "Esperava 'que' após 'maior'.\n";
@@ -415,7 +416,7 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
             }
 
             /*
-            // Remove "Só documentos após"
+
 */
             for (int i = 0; i < 3 && !tokens.empty(); i++) {
                 tokens.pop();
@@ -489,9 +490,11 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
 }
 
 size_t getFileSize(const std::string &filePath) {
+    std::cout << "[DEBUG] Tentando abrir arquivo: " << filePath << "\n";
     std::ifstream file(filePath, std::ios::binary | std::ios::ate);
 
     if (!file) {
+        std::cout << "[DEBUG] Arquivo não encontrado ou falha na abertura: " << filePath << "\n";
         return static_cast<size_t>(-1);
     }
     return static_cast<size_t>(file.tellg());
@@ -511,6 +514,13 @@ void SyntaxAnalyzer::analyzeSizeQuery(std::queue<Token> tokens) {
         tokens.pop();
     }
 
+    std::string title;
+    while (!tokens.empty() && tokens.front().lexeme != "?") {
+        title += tokens.front().lexeme;
+        tokens.pop();
+    }
+
+
     if (tokens.empty()) {
         currentQuery.isComplete = false;
         currentQuery.missingElement = "título";
@@ -521,7 +531,6 @@ void SyntaxAnalyzer::analyzeSizeQuery(std::queue<Token> tokens) {
     Captura o título do doc
 */
 
-    std::string title;
     while (!tokens.empty() && tokens.front().lexeme != "?") {
         title += tokens.front().lexeme + " ";
         tokens.pop();
@@ -670,7 +679,6 @@ void SyntaxAnalyzer::analyzeResponse(std::queue<Token> tokens) {
 std::string SyntaxAnalyzer::generateResponse(const ParsedQuery &query) {
     switch (query.type) {
         case QueryType::FORMAT_QUERY: {
-            // Retorna o formato solicitado
             auto it = query.parameters.find("formato");
             if (it != query.parameters.end()) {
                 return "O formato é: " + it->second;
@@ -678,15 +686,27 @@ std::string SyntaxAnalyzer::generateResponse(const ParsedQuery &query) {
             return "Não foi possível identificar o formato.";
         }
         case QueryType::SIZE_QUERY: {
-            // Retorna o tamanho do documento
-            auto it = query.parameters.find("tamanho");
+            auto it = query.parameters.find("título");
             if (it != query.parameters.end()) {
-                return "O tamanho do documento é: " + it->second + " bytes.";
+                std::string relativePath = "SyntaxAnalyzer/" + it->second;
+
+                std::filesystem::path projectRoot = std::filesystem::current_path().parent_path();
+                std::filesystem::path filePath = projectRoot / relativePath;
+
+                filePath = std::filesystem::canonical(filePath);
+
+                std::cout << "[DEBUG] Caminho completo do arquivo: " << filePath.string() << "\n";
+
+                size_t fileSize = getFileSize(filePath.string());
+                if (fileSize == static_cast<size_t>(-1)) {
+                    return "O arquivo \"" + filePath.string() + "\" não foi encontrado no sistema.";
+                }
+
+                return "O tamanho do arquivo \"" + filePath.string() + "\" é: " + std::to_string(fileSize) + " bytes.";
             }
-            return "Não foi possível identificar o tamanho.";
+            return "Não foi possível identificar o caminho do arquivo.";
         }
         case QueryType::TITLE_QUERY: {
-            // Retorna o título identificado
             auto it = query.parameters.find("título");
             if (it != query.parameters.end()) {
                 return "O título correto é: \"" + it->second + "\".";
@@ -694,7 +714,6 @@ std::string SyntaxAnalyzer::generateResponse(const ParsedQuery &query) {
             return "Não foi possível identificar o título.";
         }
         case QueryType::DATE_QUERY: {
-            // Retorna a data solicitada
             auto it = query.parameters.find("data");
             if (it != query.parameters.end()) {
                 return "Só documentos após " + it->second + ".";
@@ -702,7 +721,6 @@ std::string SyntaxAnalyzer::generateResponse(const ParsedQuery &query) {
             return "Não foi possível identificar a data.";
         }
         case QueryType::KEYWORD_QUERY: {
-            // Retorna palavras-chave
             auto it = query.parameters.find("palavra_chave");
             if (it != query.parameters.end()) {
                 return "Os documentos relacionados à palavra-chave \"" + it->second + "\" serão listados.";
