@@ -691,7 +691,7 @@ std::string SyntaxAnalyzer::generateResponse(const ParsedQuery &query) {
         }
         case QueryType::SIZE_QUERY: {
             auto it = query.parameters.find("título");
-            if (it != query.parameters.end()) {
+            /* if (it != query.parameters.end()) {
                 std::string relativePath = "SyntaxAnalyzer/" + it->second;
 
                 std::filesystem::path projectRoot = std::filesystem::current_path().parent_path();
@@ -707,7 +707,7 @@ std::string SyntaxAnalyzer::generateResponse(const ParsedQuery &query) {
                 }
 
                 return "O tamanho do arquivo \"" + filePath.string() + "\" é: " + std::to_string(fileSize) + " bytes.";
-            }
+            } */
             return "Não foi possível identificar o caminho do arquivo.";
         }
         case QueryType::TITLE_QUERY: {
@@ -775,7 +775,7 @@ void SyntaxAnalyzer::printSyntaxTree(SyntaxTreeNode *node, int depth) const {
     }
 
     for (int i = 0; i < depth; ++i) {
-        std::cout << "  "; // Adiciona espaços
+        std::cout << "  ";
     }
     std::cout << node->token.lexeme << " (" << node->token.type << ")\n";
 

@@ -29,6 +29,14 @@ int main() {
         std::getline(std::cin, input);
 
         if (input == "sair") break;
+
+        /*
+         * Cleaning of queue and tree before next iteration
+         */
+
+        syntaxAnalyzer.~SyntaxAnalyzer();
+        new(&syntaxAnalyzer) SyntaxAnalyzer();
+
         /*
                  Análise léxica
         */
@@ -45,7 +53,6 @@ int main() {
             tokenCopy.pop();
         }
 
-
         /*
          Análise sintática
         */
@@ -58,6 +65,7 @@ int main() {
                 std::cout << "Elemento faltante: " << missing << std::endl;
                 std::cout << "Qual " << missing << " você deseja saber?" << std::endl;
                 std::getline(std::cin, input);
+
                 lexAnalyzer.analyze(input);
                 tokens = lexAnalyzer.getTokenQueue();
                 if (syntaxAnalyzer.handleResponse(tokens)) {
