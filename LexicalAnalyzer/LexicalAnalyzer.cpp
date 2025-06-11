@@ -15,7 +15,10 @@ private:
     std::vector<std::string> symbolTable;
     std::queue<Token> tokenQueue;
 
-    // Conjunto de caracteres válidos
+    /*
+     Conjunto de caracteres válidos
+*/
+
     std::string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzãéçóàáÁÀèÈéÉúÚ0123456789"
             ".,;:!?()[]{}+-*/=><\"'@#$%&_\\| \t\n\r";
 
@@ -48,18 +51,21 @@ private:
 #include <iostream>
 
 void LexicalAnalyzer::loadStopwords() {
-    // Fonte das stopwords: https://gist.github.com/alopes/5358189
+    /*
+     Fonte das stopwords: https://gist.github.com/alopes/5358189
+*/
+
     std::vector<std::string> defaultStopwords = {
         "a", "ao", "aos", "aquela", "aquelas", "aquele", "aqueles", "aquilo",
         "as", "até", "com", "como", "da", "das", "de", "dela", "delas", "dele",
-        "deles", "depois", "do", "dos", "e", "ela", "elas", "ele", "eles", "em",
-        "entre", "era", "eram", "essa", "essas", "esse", "esses", "esta", "estas",
-        "este", "estes", "eu", "foi", "foram", "há", "isso", "isto", "já", "lhe",
+        "deles", "depois", "do", "dos", "e", "ela", "elas", "ele", "eles",
+        "entre", "era", "eram", "essa", "essas", "esse", "esses", "estas",
+        "este", "estes", "eu", "foi", "há", "isso", "isto", "já", "lhe",
         "lhes", "mais", "mas", "me", "mesmo", "meu", "meus", "minha", "minhas",
-        "muito", "na", "nas", "nem", "no", "nos", "nossa", "nossas", "nosso",
-        "nossos", "num", "numa", "o", "os", "ou", "para", "pela", "pelas", "pelo",
-        "pelos", "por", "qual", "quando", "que", "quem", "são", "se", "seja",
-        "sem", "seu", "seus", "só", "sua", "suas", "também", "te", "tem", "têm",
+        "muito", "na", "nas", "nem", "nos", "nossa", "nossas", "nosso",
+        "nossos", "num", "numa", "os", "ou", "para", "pela", "pelas", "pelo",
+        "pelos", "por", "quando", "que", "quem", "são", "se", "seja",
+        "sem", "seu", "seus", "só", "sua", "suas", "também", "te",
         "seu", "sua", "teu", "tua", "teus", "tuas", "um", "uma", "umas", "uns"
     };
 

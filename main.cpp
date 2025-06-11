@@ -2,19 +2,19 @@
 #include "LexicalAnalyzer/LexicalAnalyzer.h"
 #include "SyntaxAnalyzer/SyntaxAnalyzer.h"
 
-void printAnalysisResults(const LexicalAnalyzer& analyzer) {
+void printAnalysisResults(const LexicalAnalyzer &analyzer) {
     std::cout << "\nTabela de Simbolos:" << std::endl;
-    for (const auto& symbol : analyzer.getSymbolTable()) {
+    for (const auto &symbol: analyzer.getSymbolTable()) {
         std::cout << symbol << std::endl;
     }
 
     std::cout << "\nFila de Tokens:" << std::endl;
     auto tokenQueue = analyzer.getTokenQueue();
     while (!tokenQueue.empty()) {
-        const auto& token = tokenQueue.front();
-        std::cout << "Lexema: " << token.lexeme 
-                  << " (Linha: " << token.line 
-                  << ", Coluna: " << token.column << ")" << std::endl;
+        const auto &token = tokenQueue.front();
+        std::cout << "Lexema: " << token.lexeme
+                << " (Linha: " << token.line
+                << ", Coluna: " << token.column << ")" << std::endl;
         tokenQueue.pop();
     }
 }
@@ -29,12 +29,26 @@ int main() {
         std::getline(std::cin, input);
 
         if (input == "sair") break;
-
-        // Análise léxica
+        /*
+                 Análise léxica
+        */
         lexAnalyzer.analyze(input);
         auto tokens = lexAnalyzer.getTokenQueue();
+        std::cout << "\n[DEBUG] Tokens gerados pela análise léxica:" << std::endl;
+        auto tokenCopy = tokens;
+        while (!tokenCopy.empty()) {
+            const auto& token = tokenCopy.front();
+            std::cout << "Lexema: '" << token.lexeme
+                      << "', Tipo: '" << token.type
+                      << "', Linha: " << token.line
+                      << ", Coluna: " << token.column << std::endl;
+            tokenCopy.pop();
+        }
 
-        // Análise sintática
+
+        /*
+         Análise sintática
+        */
         ParsedQuery result = syntaxAnalyzer.analyze(tokens);
 
         if (!result.isComplete) {
@@ -54,11 +68,10 @@ int main() {
             }
         } else {
             std::cout << "Consulta reconhecida com sucesso!\n";
-            for (const auto& param : result.parameters) {
+            for (const auto &param: result.parameters) {
                 std::cout << param.first << ": " << param.second << std::endl;
             }
         }
-
     }
 
     return 0;

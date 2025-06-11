@@ -28,10 +28,10 @@ struct ParsedQuery {
 class SyntaxAnalyzer {
 private:
     std::vector<std::string> validFormats = {
-        ".pdf", ".docx", ".xlsx", ".pptx", ".txt", ".rtf", ".odt",
-        ".ods", ".odp", ".csv", ".html", ".htm", ".xml", ".json",
-        ".zip", ".rar", ".7z", ".tar", ".gz", ".mp3", ".jpg",
-        ".png", ".mp4"
+        "pdf", "docx", "xlsx", "pptx", "txt", "rtf", "odt",
+        "ods", "odp", "csv", "html", "htm", "xml", "json",
+        "zip", "rar", "7z", "tar", "gz", "mp3", "jpg",
+        "png", "mp4"
     };
 
     ParsedQuery currentQuery;
