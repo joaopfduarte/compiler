@@ -218,6 +218,11 @@ ParsedQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
 
     currentQuery = ParsedQuery{type, {}, false, ""};
 
+    buildSyntaxTree(tokens);
+
+    std::cout << "[DEBUG] Árvore de Sintaxe Construída:\n" << std::endl;
+    printSyntaxTree(root);
+
     switch (type) {
         case QueryType::FORMAT_QUERY:
             std::cout << "[DEBUG] Analyzing format query..." << std::endl;
@@ -248,7 +253,6 @@ ParsedQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
             currentQuery.isComplete = false;
             break;
     }
-
 
     if (!currentQuery.isComplete) {
         queryHistory.push_back(currentQuery);
@@ -733,5 +737,49 @@ std::string SyntaxAnalyzer::generateResponse(const ParsedQuery &query) {
         default: {
             return "Consulta desconhecida.";
         }
+    }
+}
+
+/*
+ * Syntax Tree implementation and print
+ */
+void SyntaxAnalyzer::buildSyntaxTree(std::queue<Token> tokens) {
+    if (root) {
+        delete root;
+        root = nullptr;
+    }
+
+    if (tokens.empty()) {
+        std::cout << "[DEBUG] Nenhum token fornecido para construir a árvore de sintaxe.\n";
+        return;
+    }
+
+    root = new SyntaxTreeNode(tokens.front());
+    tokens.pop();
+
+    SyntaxTreeNode *currentNode = root;
+    while (!tokens.empty()) {
+        SyntaxTreeNode *child = new SyntaxTreeNode(tokens.front());
+        tokens.pop();
+
+        currentNode->addChild(child);
+
+
+        currentNode = child;
+    }
+}
+
+void SyntaxAnalyzer::printSyntaxTree(SyntaxTreeNode *node, int depth) const {
+    if (!node) {
+        return;
+    }
+
+    for (int i = 0; i < depth; ++i) {
+        std::cout << "  "; // Adiciona espaços
+    }
+    std::cout << node->token.lexeme << " (" << node->token.type << ")\n";
+
+    for (auto child: node->children) {
+        printSyntaxTree(child, depth + 1);
     }
 }

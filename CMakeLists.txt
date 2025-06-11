@@ -9,4 +9,5 @@ add_executable(compiler
         LexicalAnalyzer/LexicalAnalyzer.cpp
         "SyntaxAnalyzer/SyntaxAnalyzer.cpp"
         "SyntaxAnalyzer/SyntaxAnalyzer.h"
+        SyntaxAnalyzer/SyntaxTreeNode.h
 )

@@ -8,6 +8,7 @@
 #include <map>
 #include <algorithm>
 #include "../Token.h"
+#include "SyntaxTreeNode.h"
 
 enum class QueryType {
     FORMAT_QUERY,
@@ -25,6 +26,7 @@ struct ParsedQuery {
     bool isComplete;
     std::string missingElement;
 };
+
 class SyntaxAnalyzer {
 private:
     std::vector<std::string> validFormats = {
@@ -36,27 +38,48 @@ private:
 
     ParsedQuery currentQuery;
     std::vector<ParsedQuery> queryHistory;
+    SyntaxTreeNode *root;
 
-    bool isValidFormat(const std::string& format);
-    bool isValidDate(const std::string& date);
-    QueryType identifyQueryType(const std::queue<Token>& tokenQueue);
+    bool isValidFormat(const std::string &format);
+
+    bool isValidDate(const std::string &date);
+
+    QueryType identifyQueryType(const std::queue<Token> &tokenQueue);
+
     void analyzeFormatQuery(std::queue<Token> tokens);
+
     void analyzeSizeQuery(std::queue<Token> tokens);
+
     void analyzeTitleQuery(std::queue<Token> tokens);
+
     void analyzeDateQuery(std::queue<Token> tokens);
+
     void analyzeKeywordQuery(std::queue<Token> tokens);
+
     void analyzeResponse(std::queue<Token> tokens);
 
+    void buildSyntaxTree(std::queue<Token> tokens);
+
 public:
-    SyntaxAnalyzer() {}
+    SyntaxAnalyzer() : root(nullptr) {
+    }
+
+    ~SyntaxAnalyzer() {
+        delete root;
+    }
 
     ParsedQuery analyze(std::queue<Token> tokens);
+
     std::string getMissingElement() const;
+
     std::string generateResponse(const ParsedQuery &query);
+
     bool handleResponse(std::queue<Token> tokens);
 
-};
+    void printSyntaxTree(SyntaxTreeNode *node, int depth = 0) const;
 
+    SyntaxTreeNode *getSyntaxTreeRoot() const { return root; }
+};
 
 
 #endif //SYNTAXANALYZER_H
