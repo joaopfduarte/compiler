@@ -34,8 +34,10 @@ int main() {
          * Cleaning of queue and tree before next iteration
          */
 
-        syntaxAnalyzer.~SyntaxAnalyzer();
-        new(&syntaxAnalyzer) SyntaxAnalyzer();
+        /*syntaxAnalyzer.~SyntaxAnalyzer();
+        new(&syntaxAnalyzer) SyntaxAnalyzer();*/
+        lexAnalyzer.~LexicalAnalyzer();
+        new(&lexAnalyzer) LexicalAnalyzer();
 
         /*
                  Análise léxica

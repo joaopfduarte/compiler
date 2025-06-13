@@ -757,29 +757,29 @@ std::string SyntaxAnalyzer::generateResponse(const ParsedQuery &query) {
  * Syntax Tree implementation and print
  */
 void SyntaxAnalyzer::buildSyntaxTree(std::queue<Token> tokens) {
-    if (root) {
-        delete root;
-        root = nullptr;
-    }
-
     if (tokens.empty()) {
         std::cout << "[DEBUG] Nenhum token fornecido para construir a árvore de sintaxe.\n";
         return;
     }
 
-    root = new SyntaxTreeNode(tokens.front());
+    if (!root) {
+        root = new SyntaxTreeNode(Token{"root", "ROOT", 0, 0});
+    }
+
+    Token branchToken = tokens.front();
+    SyntaxTreeNode *branchNode = new SyntaxTreeNode(branchToken);
+    root->addChild(branchNode);
+
     tokens.pop();
 
     SyntaxTreeNode *currentNode = root;
     while (!tokens.empty()) {
         SyntaxTreeNode *child = new SyntaxTreeNode(tokens.front());
         tokens.pop();
-
         currentNode->addChild(child);
-
-
         currentNode = child;
     }
+    std::cout << "[DEBUG] Nova branch adicionada à árvore de sintaxe.\n";
 }
 
 void SyntaxAnalyzer::printSyntaxTree(SyntaxTreeNode *node, int depth) const {
