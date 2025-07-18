@@ -39,10 +39,13 @@ private:
     ParsedQuery currentQuery;
     std::vector<ParsedQuery> queryHistory;
     SyntaxTreeNode *root;
+    std:: string currentError;
 
     bool isValidFormat(const std::string &format);
 
     bool isValidDate(const std::string &date);
+
+    bool validateTokenCount(const std::queue<Token> &tokens, int min, int max);
 
     QueryType identifyQueryType(const std::queue<Token> &tokenQueue);
 
@@ -60,6 +63,10 @@ private:
 
     void buildSyntaxTree(std::queue<Token> tokens);
 
+    void syncToRecoveryPoint(std::queue<Token> &tokens);
+
+    void logError(const Token &token, const std::string &expected);
+
 public:
     SyntaxAnalyzer() : root(nullptr) {
     }
@@ -76,7 +83,7 @@ public:
 
     bool handleResponse(std::queue<Token> tokens);
 
-    void printSyntaxTree(SyntaxTreeNode *node, int depth = 0) const;
+    void printSyntaxTree(SyntaxTreeNode* root, int depth) const;
 
     SyntaxTreeNode *getSyntaxTreeRoot() const { return root; }
 };

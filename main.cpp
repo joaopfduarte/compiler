@@ -1,6 +1,8 @@
 #include <iostream>
 #include "LexicalAnalyzer/LexicalAnalyzer.h"
 #include "SyntaxAnalyzer/SyntaxAnalyzer.h"
+#include "Translator/Translator.h"
+#include "SyntaxAnalyzer/SyntaxTreeNode.h"
 
 void printAnalysisResults(const LexicalAnalyzer &analyzer) {
     std::cout << "\nTabela de Simbolos:" << std::endl;
@@ -19,9 +21,39 @@ void printAnalysisResults(const LexicalAnalyzer &analyzer) {
     }
 }
 
+void testTranslator(Translator &translator) {
+    SyntaxTreeNode *root = new SyntaxTreeNode(Token{"root", "ROOT", 0, 0});
+
+    SyntaxTreeNode *queryNode = new SyntaxTreeNode(Token{"query", "QUERY", 1, 1});
+    root->addChild(queryNode);
+
+    SyntaxTreeNode *termNode = new SyntaxTreeNode(Token{"documentos", "TERM", 1, 3});
+    queryNode->addChild(termNode);
+
+    SyntaxTreeNode *andNode = new SyntaxTreeNode(Token{"AND", "OPERATOR", 1, 5});
+    SyntaxTreeNode *nextTermNode = new SyntaxTreeNode(Token{"compiladores", "TERM", 1, 7});
+    andNode->addChild(nextTermNode);
+    queryNode->addChild(andNode);
+
+    std::string result = translator.translateToIEEEQuery(root);
+
+    std::cout << "[TESTE] URL gerada pelo documento:\n" << result << "\n";
+
+    delete root;
+}
+
+
 int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    std::cout << std::unitbuf;
+    std::locale::global(std::locale(""));
+
+
     LexicalAnalyzer lexAnalyzer;
     SyntaxAnalyzer syntaxAnalyzer;
+    Translator translator;
     std::string input;
 
     while (true) {
@@ -76,15 +108,23 @@ int main() {
                     std::cout << "Não foi possível completar a consulta.\n";
                 }
             }
-        } else {
+        } else if (result.isComplete) {
             std::cout << "Consulta reconhecida com sucesso!\n";
             for (const auto &param: result.parameters) {
                 std::cout << param.first << ": " << param.second << std::endl;
             }
 
-            std::string response = syntaxAnalyzer.generateResponse(result);
-            std::cout << "Resposta: " << response << std::endl;
-        }
+            SyntaxTreeNode *syntaxTreeRoot = syntaxAnalyzer.getSyntaxTreeRoot();
+            std::string ieeQueryUrl = translator.translateToIEEEQuery(syntaxTreeRoot);
+            std::cout << "IEEE Query URL: " << ieeQueryUrl << std::endl;
+
+            if (ieeQueryUrl == "URL_CORRETA_ESPERADA") {
+                std::cout << "URL gerada corretamente!\n";
+            } else {
+                std::cout << "URL gerada não corresponde ao esperado!\n";
+            }
+        } else
+            std::cout << "Consulta inválida!\n";
     }
 
     return 0;

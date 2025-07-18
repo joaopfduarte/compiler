@@ -169,19 +169,31 @@ void LexicalAnalyzer::processWord(const std::string &originalWord, int line, int
     std::string lowerWord = word;
     std::transform(lowerWord.begin(), lowerWord.end(), lowerWord.begin(), ::tolower);
 
-    if (stopwords.find(lowerWord) == stopwords.end()) {
-        std::string similarWord = findSimilarWord(word);
-
-        if (similarWord != word) {
-            std::cout << "Sugestao: '" << word << "' pode ser '" << similarWord << "'" << std::endl;
-            word = similarWord;
-        }
-
-
-        if (std::find(symbolTable.begin(), symbolTable.end(), word) == symbolTable.end()) {
-            symbolTable.push_back(word);
-        }
-
-        tokenQueue.push(Token(word, "WORD", line, column));
+    if (lowerWord == "and" || lowerWord == "or") {
+        tokenQueue.push(Token(word, "OPERATOR", line, column));
+        return;
     }
+
+    const std::set<std::string> formats = {"pdf", "docx", "xlsx", "pptx", "txt", "csv"};
+    if (formats.find(lowerWord) != formats.end()) {
+        tokenQueue.push(Token(word, "FORMAT", line, column));
+        return;
+    }
+
+    if (stopwords.find(lowerWord) != stopwords.end()) {
+        return;
+    }
+
+    std::string similarWord = findSimilarWord(word);
+
+    if (similarWord != word) {
+        std::cout << "Sugestao: '" << word << "' pode ser '" << similarWord << "'" << std::endl;
+        word = similarWord;
+    }
+
+    if (std::find(symbolTable.begin(), symbolTable.end(), word) == symbolTable.end()) {
+        symbolTable.push_back(word);
+    }
+
+    tokenQueue.push(Token(word, "WORD", line, column));
 }
