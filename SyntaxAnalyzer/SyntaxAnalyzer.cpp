@@ -230,7 +230,7 @@ ParsedQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
     std::cout << "Inicializando categorização de token: " << std::endl;
 
     if (!validateTokenCount(tokens, 3, 8)) {
-        syncToRecoveryPoint(tokens); // Sincroniza para continuar a análise
+        syncToRecoveryPoint(tokens);
         currentQuery.isComplete = false;
         return currentQuery;
     }
@@ -238,7 +238,6 @@ ParsedQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
     QueryType type = identifyQueryType(tokens);
     std::cout << "[DEBUG] Identified query type: " << QueryTypeToString(type) << std::endl;
     if (type == QueryType::UNKNOWN) {
-        logError(tokens.front(), "um comando válido (e.g., 'Qual', 'Mostre')");
         syncToRecoveryPoint(tokens);
         currentQuery.isComplete = false;
         return currentQuery;
@@ -250,7 +249,6 @@ ParsedQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
     buildSyntaxTree(tokens);
 
     if (!tokens.empty()) {
-        logError(tokens.front(), "fim da consulta");
         syncToRecoveryPoint(tokens);
     }
 
@@ -277,10 +275,6 @@ ParsedQuery SyntaxAnalyzer::analyze(std::queue<Token> tokens) {
         case QueryType::KEYWORD_QUERY:
             std::cout << "[DEBUG] Analyzing keyword query..." << std::endl;
             analyzeKeywordQuery(tokens);
-            break;
-        case QueryType::RESPONSE:
-            std::cout << "[DEBUG] Analyzing response..." << std::endl;
-            analyzeResponse(tokens);
             break;
         default:
             std::cout << "[DEBUG] Nao entendi" << std::endl;
@@ -329,7 +323,6 @@ std::string SyntaxAnalyzer::getMissingElement() const {
 bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
     if (queryHistory.empty()) {
         std::cout << "Não há consulta pendente para responder.\n";
-        return false;
     }
 
     ParsedQuery &lastQuery = queryHistory.back();
@@ -338,7 +331,6 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
     */
     if (tokens.empty()) {
         std::cout << "Resposta vazia.\n";
-        return false;
     }
     /*
          Obtém a primeira palavra da resposta
@@ -355,8 +347,7 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
                         Espera: "O formato é <formato>"
             */
             if (firstWord != "O") {
-                std::cout << "Resposta deve começar com 'O formato é...'\n";
-                return false;
+                std::cout << "Resposta deve começar com 'O formato e...'\n";
             }
             /*
                          Remove "O formato é"
@@ -366,8 +357,7 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
             }
 
             if (tokens.empty()) {
-                std::cout << "Formato não especificado.\n";
-                return false;
+                std::cout << "Formato nao especificado.\n";
             }
 
             std::string format = tokens.front().lexeme;
@@ -375,9 +365,6 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
                 lastQuery.parameters["formato"] = format;
                 lastQuery.isComplete = true;
                 return true;
-            } else {
-                std::cout << "Formato inválido: " << format << std::endl;
-                return false;
             }
         }
 
@@ -387,8 +374,7 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
             */
 
             if (tokens.empty()) {
-                std::cout << "A resposta está vazia.\n";
-                return false;
+                std::cout << "A resposta esta vazia.\n";
             }
 
             std::string currentWord = tokens.front().lexeme;
@@ -396,43 +382,37 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
 
             if (currentWord != "quero") {
                 std::cout << "Resposta deve começar com 'Quero tamanho maior que...'\n";
-                return false;
             }
 
             tokens.pop();
 
             if (tokens.empty() || tokens.front().lexeme != "tamanho") {
-                std::cout << "Esperava 'tamanho' após 'Quero'.\n";
-                return false;
+                std::cout << "Esperava 'tamanho' apos 'Quero'.\n";
             }
 
             tokens.pop();
 
             if (tokens.empty() || tokens.front().lexeme != "maior") {
-                std::cout << "Esperava 'maior' após 'tamanho'.\n";
-                return false;
+                std::cout << "Esperava 'maior' apos 'tamanho'.\n";
             }
 
             tokens.pop();
 
             if (tokens.empty() || tokens.front().lexeme != "que") {
-                std::cout << "Esperava 'que' após 'maior'.\n";
-                return false;
+                std::cout << "Esperava 'que' apos 'maior'.\n";
             }
 
             tokens.pop();
 
             if (tokens.empty()) {
-                std::cout << "Tamanho não especificado após 'que'.\n";
-                return false;
+                std::cout << "Tamanho nao especificado apos 'que'.\n";
             }
 
             currentWord = tokens.front().lexeme;
             tokens.pop();
 
             if (!std::all_of(currentWord.begin(), currentWord.end(), ::isdigit)) {
-                std::cout << "Tamanho inválido: " << currentWord << "\n";
-                return false;
+                std::cout << "Tamanho invalido: " << currentWord << "\n";
             }
 
             lastQuery.parameters["tamanho"] = currentWord;
@@ -444,13 +424,42 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
             return true;
         }
 
+        case QueryType::TITLE_QUERY: {
+            if (tokens.empty()) {
+                std::cout << "[ERROR] Não foram fornecidos tokens para a consulta de título.\n";
+                return false;
+            }
+
+            buildSyntaxTree(tokens);
+
+            std::string titleValue;
+            SyntaxTreeNode* lastNode = root;
+
+            while (!lastNode->children.empty()) {
+                lastNode = lastNode->children.back();
+            }
+
+            titleValue = lastNode->token.lexeme;
+
+            if (titleValue.empty()) {
+                std::cout << "[ERROR] Nenhum valor relevante encontrado no último nó da árvore.\n";
+                return false;
+            }
+
+            currentQuery.parameters["title"] = titleValue;
+            currentQuery.isComplete = true;
+
+            std::cout << "[INFO] Consulta de título processada com sucesso: \"" << titleValue << "\"\n";
+            return true;
+
+        }
+
         case QueryType::DATE_QUERY: {
             /*
                         Espera: "Só documentos após <data>"
             */
             if (firstWord != "só") {
-                std::cout << "Resposta deve começar com 'Só documentos após...'\n";
-                return false;
+                std::cout << "Resposta deve começar com 'So documentos apos...'\n";
             }
 
             /*
@@ -461,8 +470,7 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
             }
 
             if (tokens.empty()) {
-                std::cout << "Data não especificada.\n";
-                return false;
+                std::cout << "Data nao especificada.\n";
             }
 
             std::string date;
@@ -476,7 +484,7 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
                 lastQuery.isComplete = true;
                 return true;
             } else {
-                std::cout << "Data inválida: " << date << std::endl;
+                std::cout << "Data invalida: " << date << std::endl;
                 return false;
             }
         }
@@ -487,7 +495,6 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
             */
             if (firstWord != "eu") {
                 std::cout << "Resposta deve começar com 'Eu quis dizer...'\n";
-                return false;
             }
 
             /*
@@ -499,8 +506,7 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
             }
 
             if (tokens.empty()) {
-                std::cout << "Palavra-chave não especificada.\n";
-                return false;
+                std::cout << "Palavra-chave nao especificada.\n";
             }
 
             std::string keyword;
@@ -522,7 +528,7 @@ bool SyntaxAnalyzer::handleResponse(std::queue<Token> tokens) {
         }
 
         default:
-            std::cout << "Tipo de consulta não suporta resposta.\n";
+            std::cout << "Tipo de consulta nao suporta resposta.\n";
             return false;
     }
 }
@@ -532,7 +538,7 @@ size_t getFileSize(const std::string &filePath) {
     std::ifstream file(filePath, std::ios::binary | std::ios::ate);
 
     if (!file) {
-        std::cout << "[DEBUG] Arquivo não encontrado ou falha na abertura: " << filePath << "\n";
+        std::cout << "[DEBUG] Arquivo nao encontrado ou falha na abertura: " << filePath << "\n";
         return static_cast<size_t>(-1);
     }
     return static_cast<size_t>(file.tellg());
@@ -787,42 +793,20 @@ void SyntaxAnalyzer::buildSyntaxTree(std::queue<Token> tokens) {
         root = new SyntaxTreeNode(Token{"root", "ROOT", 0, 0});
     }
 
-    std::stack<SyntaxTreeNode *> nodeStack;
+    SyntaxTreeNode *currentNode = root;
 
     while (!tokens.empty()) {
         Token currentToken = tokens.front();
         tokens.pop();
 
-        if (currentToken.type == "OPERATOR") {
-            SyntaxTreeNode *operatorNode = new SyntaxTreeNode(currentToken);
-
-            if (nodeStack.size() >= 2) {
-                auto rightChild = nodeStack.top();
-                nodeStack.pop();
-                auto leftChild = nodeStack.top();
-                nodeStack.pop();
-
-                operatorNode->addChild(leftChild);
-                operatorNode->addChild(rightChild);
-                nodeStack.push(operatorNode);
-            } else {
-                std::cerr << "[ERRO] Operador '" << currentToken.lexeme << "' sem operandos suficientes.\n";
-                delete operatorNode;
-            }
-        } else {
-            nodeStack.push(new SyntaxTreeNode(currentToken));
-        }
+        SyntaxTreeNode *newNode = new SyntaxTreeNode(currentToken);
+        currentNode->addChild(newNode);
+        currentNode = newNode;
     }
 
-    if (!nodeStack.empty()) {
-        SyntaxTreeNode *finalNode = nodeStack.top();
-        nodeStack.pop();
-        root->addChild(finalNode);
-        std::cout << "[DEBUG] Árvore de sintaxe construída com sucesso!\n";
-    } else {
-        std::cerr << "[ERRO] Falha ao construir a árvore de sintaxe. Nenhum nó encontrado.\n";
-    }
+    std::cout << "[DEBUG] Árvore de sintaxe construída com sucesso!\n";
 }
+
 
 void SyntaxAnalyzer::printSyntaxTree(SyntaxTreeNode *node, int depth) const {
     if (!node) {
@@ -864,9 +848,4 @@ void SyntaxAnalyzer::syncToRecoveryPoint(std::queue<Token> &tokens) {
     }
 }
 
-void SyntaxAnalyzer::logError(const Token &token, const std::string &expected) {
-    currentError = "Erro no token '" + token.lexeme +
-                   "' (linha: " + std::to_string(token.line) + ", coluna: " + std::to_string(token.column) +
-                   "). Esperado: " + expected;
-    std::cerr << currentError << "\n";
-}
+

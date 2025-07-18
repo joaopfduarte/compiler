@@ -15,9 +15,9 @@ struct ParsedQuery;
 class Translator {
 public:
     Translator() = default;
-    std::string translateToIEEEQuery(SyntaxTreeNode* node);
+    std::string translateToIEEEQuery(SyntaxTreeNode* node, QueryType type);
 private:
-    std::string translateNode(SyntaxTreeNode* node);
-    std::string formatFilters(const std::string& range);
+    std::string processKeywordQuery(SyntaxTreeNode *root);
+    std::string processTitleQuery(SyntaxTreeNode *root);
 };
 #endif //TRANSLATOR_H

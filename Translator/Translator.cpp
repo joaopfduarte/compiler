@@ -1,52 +1,81 @@
-//
-// Created by joaop on 7/17/2025.
-//
-
 #include "Translator.h"
-
 #include "../SyntaxAnalyzer/SyntaxAnalyzer.h"
 
-std::string Translator::translateToIEEEQuery(SyntaxTreeNode *root) {
+std::string Translator::translateToIEEEQuery(SyntaxTreeNode *root, QueryType queryType) {
     if (!root) return "";
 
     std::string baseUrl = "https://ieeexplore.ieee.org/search/searchresult.jsp";
     std::string queryParams = "?action=search&newsearch=true&matchBoolean=true";
 
-    std::string queryText = "&queryText=(" + translateNode(root) + ")";
+    std::string queryText;
 
-    std::string filters;
-    for (auto &child: root->children) {
-        if (child->token.lexeme == "ranges") {
-            filters = formatFilters(child->token.lexeme);
+    SyntaxTreeNode *lastRelevantNode = nullptr;
+    SyntaxTreeNode *currentNode = root;
+
+    while (!currentNode->children.empty()) {
+        currentNode = currentNode->children.back();
+        if (!currentNode->token.lexeme.empty()) {
+            lastRelevantNode = currentNode;
         }
     }
 
-    return baseUrl + queryParams + queryText + filters;
-}
-
-std::string Translator::translateNode(SyntaxTreeNode *node) {
-    if (!node) return "";
-
-    std::string result;
-
-    for (size_t i = 0; i < node->children.size(); i++) {
-        SyntaxTreeNode *child = node->children[i];
-
-        if (result.size() > 0) {
-            result += (node->token.lexeme == "AND") ? " AND " : " OR ";
-        }
-
-        if (child->token.type == "FIELD") {
-            if (child->children.size() > 0) {
-                result += "\"" + child->token.lexeme + "\":\"" + child->children[0]->token.lexeme + "\"";
-            }
+    if (lastRelevantNode) {
+        if (queryType == QueryType::KEYWORD_QUERY) {
+            queryText = "&queryText=" + lastRelevantNode->token.lexeme;
+        } else if (queryType == QueryType::TITLE_QUERY) {
+            queryText = "&queryText=Título:%20" + lastRelevantNode->token.lexeme;
         } else {
-            result += translateNode(child);
+            queryText = "&queryText=Consulta não suportada";
         }
+    } else {
+        queryText = "undefined";
     }
-    return result;
+
+    return baseUrl + queryParams + queryText;
+
 }
 
-    std::string Translator::formatFilters(const std::string &range) {
-        return "&ranges=" + range + "_Year";
+std::string Translator::processKeywordQuery(SyntaxTreeNode *root) {
+    if (!root) return "";
+
+    std::string queryText = "&queryText=";
+
+    SyntaxTreeNode *lastRelevantNode = nullptr;
+
+    for (auto child: root->children) {
+        if (!child->token.lexeme.empty()) {
+            lastRelevantNode = child;
+        }
     }
+
+    if (lastRelevantNode) {
+        queryText += lastRelevantNode->token.lexeme;
+    } else {
+        queryText += "undefined";
+    }
+
+    return queryText;
+}
+
+std::string Translator::processTitleQuery(SyntaxTreeNode *root) {
+    if (!root) return "";
+
+    std::string queryText = "&queryText=Título:%20";
+
+    SyntaxTreeNode *lastRelevantNode = nullptr;
+
+    for (auto child: root->children) {
+        if (!child->token.lexeme.empty()) {
+            lastRelevantNode = child;
+        }
+    }
+
+    if (lastRelevantNode) {
+        queryText += lastRelevantNode->token.lexeme;
+    } else {
+        queryText += "undefined";
+    }
+
+    return queryText;
+}
+

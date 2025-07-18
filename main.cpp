@@ -21,28 +21,6 @@ void printAnalysisResults(const LexicalAnalyzer &analyzer) {
     }
 }
 
-void testTranslator(Translator &translator) {
-    SyntaxTreeNode *root = new SyntaxTreeNode(Token{"root", "ROOT", 0, 0});
-
-    SyntaxTreeNode *queryNode = new SyntaxTreeNode(Token{"query", "QUERY", 1, 1});
-    root->addChild(queryNode);
-
-    SyntaxTreeNode *termNode = new SyntaxTreeNode(Token{"documentos", "TERM", 1, 3});
-    queryNode->addChild(termNode);
-
-    SyntaxTreeNode *andNode = new SyntaxTreeNode(Token{"AND", "OPERATOR", 1, 5});
-    SyntaxTreeNode *nextTermNode = new SyntaxTreeNode(Token{"compiladores", "TERM", 1, 7});
-    andNode->addChild(nextTermNode);
-    queryNode->addChild(andNode);
-
-    std::string result = translator.translateToIEEEQuery(root);
-
-    std::cout << "[TESTE] URL gerada pelo documento:\n" << result << "\n";
-
-    delete root;
-}
-
-
 int main() {
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
@@ -95,36 +73,44 @@ int main() {
         if (!result.isComplete) {
             std::string missing = syntaxAnalyzer.getMissingElement();
             if (!missing.empty()) {
-                std::cout << "Tipo da consulta: " << static_cast<int>(result.type) << std::endl;
-                std::cout << "Elemento faltante: " << missing << std::endl;
-                std::cout << "Qual " << missing << " você deseja saber?" << std::endl;
+                std::cout << "[INFO] Tipo da consulta: " << static_cast<int>(result.type) << std::endl;
+                std::cout << "[INFO] Elemento faltante detectado: " << missing << std::endl;
+                std::cout << "[INPUT] Qual " << missing << " você deseja usar? ";
                 std::getline(std::cin, input);
 
                 lexAnalyzer.analyze(input);
                 tokens = lexAnalyzer.getTokenQueue();
+
                 if (syntaxAnalyzer.handleResponse(tokens)) {
-                    std::cout << "Consulta completada com sucesso!\n";
+                    std::cout << "[SUCCESS] Consulta completada com sucesso!\n";
+
+                    SyntaxTreeNode *root = syntaxAnalyzer.getSyntaxTreeRoot();
+                    std::string ieeeQueryUrl = translator.translateToIEEEQuery(root, result.type);
+                    std::cout << "[RESULT] URL para o IEEE: " << ieeeQueryUrl << '\n';
                 } else {
-                    std::cout << "Não foi possível completar a consulta.\n";
+                    std::cout << "[ERROR] Não foi possível completar a consulta.\n";
                 }
+            } else {
+                std::cout << "[ERROR] Não foi possível identificar o elemento faltante.\n";
             }
         } else if (result.isComplete) {
-            std::cout << "Consulta reconhecida com sucesso!\n";
-            for (const auto &param: result.parameters) {
-                std::cout << param.first << ": " << param.second << std::endl;
+            std::cout << "[INFO] Consulta reconhecida com sucesso!\n";
+            for (const auto &param : result.parameters) {
+                std::cout << param.first << ": " << param.second << '\n';
             }
 
-            SyntaxTreeNode *syntaxTreeRoot = syntaxAnalyzer.getSyntaxTreeRoot();
-            std::string ieeQueryUrl = translator.translateToIEEEQuery(syntaxTreeRoot);
-            std::cout << "IEEE Query URL: " << ieeQueryUrl << std::endl;
+            SyntaxTreeNode *root = syntaxAnalyzer.getSyntaxTreeRoot();
+            std::string ieeeQueryUrl = translator.translateToIEEEQuery(root, result.type);
+            std::cout << "[RESULT] URL para o IEEE: " << ieeeQueryUrl << '\n';
 
-            if (ieeQueryUrl == "URL_CORRETA_ESPERADA") {
-                std::cout << "URL gerada corretamente!\n";
+            if (ieeeQueryUrl == "URL_CORRETA_ESPERADA") {
+                std::cout << "[SUCCESS] URL gerada corretamente!\n";
             } else {
-                std::cout << "URL gerada não corresponde ao esperado!\n";
+                std::cout << "[WARNING] A URL gerada não corresponde com o esperado.\n";
             }
-        } else
-            std::cout << "Consulta inválida!\n";
+        } else {
+            std::cout << "[ERROR] Consulta inválida ou não suportada!\n";
+        }
     }
 
     return 0;

@@ -73,7 +73,8 @@ void LexicalAnalyzer::loadStopwords() {
 }
 
 bool LexicalAnalyzer::isValidChar(char c) const {
-    return validChars.find(c) != std::string::npos;
+    return (validChars.find(c) != std::string::npos) ||
+           ((unsigned char) c >= 128);
 }
 
 int LexicalAnalyzer::levenshteinDistance(const std::string &s1, const std::string &s2) {

@@ -17,6 +17,8 @@ enum class QueryType {
     DATE_QUERY,
     KEYWORD_QUERY,
     RESPONSE,
+    FILTER_QUERY,
+    SINGLE_FIELD_QUERY,
     UNKNOWN
 };
 
